@@ -1,4 +1,4 @@
-import UploadForm from "../components/UploadForm";
+import UploadForm from "./components/UploadForm";
 
 function App() {
   return (
