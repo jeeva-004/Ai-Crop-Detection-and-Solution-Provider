@@ -3,7 +3,6 @@ import axios from "axios";
 import multer from "multer";
 import FormData from "form-data";
 import Prediction from "../models/Prediction.js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getTreatment } from "../utilis/gemini.js";
 
 const router = express.Router();
@@ -35,15 +34,13 @@ router.post("/", upload.single("image"), async (req, res) => {
 
     const { disease, confidence } = mlResponse.data;
 
-
     let treatment = "Treatment advice not available";
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
     try {
-      const result = await model.getTreatment(disease, language);
-      treatment = result.response.text();
+      treatment = await getTreatment(disease, language);
     } catch (err) {
-      console.error("Gemini error:", err.message);
+      console.error("AI Error:", err.message);
+      return res.status(500).json({ error: "AI service failed" }); // ✅ RETURN ADDED
     }
 
     await Prediction.create({
@@ -53,7 +50,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       treatment,
     });
 
-    return res.json({ disease, confidence, treatment });
+    return res.json({ disease, confidence, treatment }); // ✅ single response
 
   } catch (error) {
     console.error("🔥 ERROR:", error.message);

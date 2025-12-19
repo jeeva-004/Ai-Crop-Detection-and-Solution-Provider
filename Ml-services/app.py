@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File
 from PIL import Image
 import io
 import torch
-from torchvision import transforms, models
+from torchvision import transforms, models   # ✅ fixed import
 
 app = FastAPI()
 
@@ -16,9 +16,11 @@ CLASS_NAMES = [
     "Sheath_Blight"
 ]
 
-# ✅ Load model
-model = models.mobilenet_v2(pretrained=False)
-model.classifier[1] = torch.nn.Linear(model.last_channel, len(CLASS_NAMES))
+# ✅ Load model (UPDATED: no deprecated argument)
+model = models.mobilenet_v2(weights=None)   # ✅ FIXED
+model.classifier[1] = torch.nn.Linear(
+    model.last_channel, len(CLASS_NAMES)
+)
 
 model.load_state_dict(
     torch.load("models/rice_mobilenet.pth", map_location="cpu")

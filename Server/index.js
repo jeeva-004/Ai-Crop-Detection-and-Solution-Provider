@@ -14,7 +14,7 @@ app.use(express.json());
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.log(err));
-console.log("GEMINI KEY:", process.env.GEMINI_API_KEY?.slice(0, 6));
+console.log("Groq Key Loaded:", !!process.env.GROQ_API_KEY);
 
 app.use("/api/predict", predictRoute);
 app.listen(5000, () => {

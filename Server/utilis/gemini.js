@@ -1,11 +1,32 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { createGroqClient } from "../utilis/groq.js";
 
 export async function getTreatment(disease, language) {
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const groq = createGroqClient();
 
-const prompt = `Explain treatment for ${disease} in simple ${language} for farmers`;
+  const completion = await groq.chat.completions.create({
+    model: "llama-3.1-8b-instant", // ✅ UPDATED
+    messages: [
+      {
+        role: "system",
+        content: "You are an agricultural expert who advises farmers."
+      },
+      {
+        role: "user",
+        content: `
+Crop disease: ${disease}
+Language: ${language}
 
-const result = await model.generateContent(prompt);
-return result.response.text();
+Explain in simple farmer-friendly words:
+1. Cause
+2. Symptoms
+3. Treatment
+4. Prevention
+`
+      }
+    ],
+    temperature: 0.6,
+    max_tokens: 500
+  });
+
+  return completion.choices[0].message.content;
 }
