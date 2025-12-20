@@ -2,33 +2,41 @@ from fastapi import FastAPI, UploadFile, File
 from PIL import Image
 import io
 import torch
-from torchvision import transforms, models   # ✅ fixed import
+import torch.nn as nn
+from torchvision import models, transforms
 
 app = FastAPI()
 
-# ✅ Classes (MUST match training order)
+# ⚠️ CLASS ORDER MUST MATCH TRAINING
 CLASS_NAMES = [
-    "Bacterial_Leaf_Blight",
-    "Brown_Spot",
-    "Healthy_Rice_Leaf",
-    "Leaf_Blast",
-    "Leaf_scald",
-    "Sheath_Blight"
+    "bacterial_leaf_blight",
+    "bacterial_leaf_streak",
+    "bacterial_panicle_blight",
+    "blast",
+    "brown_spot",
+    "dead_heart",
+    "downy_mildew",
+    "hispa",
+    "normal",
+    "tungro"
 ]
 
-# ✅ Load model (UPDATED: no deprecated argument)
-model = models.mobilenet_v2(weights=None)   # ✅ FIXED
-model.classifier[1] = torch.nn.Linear(
-    model.last_channel, len(CLASS_NAMES)
-)
+# ✅ Load ResNet18 (MATCHES TRAINING)
+model = models.resnet18(weights=None)
+model.fc = nn.Linear(model.fc.in_features, len(CLASS_NAMES))
 
+# ✅ Load trained weights
 model.load_state_dict(
-    torch.load("models/rice_mobilenet.pth", map_location="cpu")
+    torch.load("models/paddy_resnet18_lowram.pt", map_location="cpu")
 )
 
 model.eval()
 
-# ✅ Image transforms (same as training)
+dummy = torch.zeros(1, 3, 224, 224)
+with torch.no_grad():
+    model(dummy)
+
+# ✅ Same transforms used in training
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),

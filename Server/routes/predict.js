@@ -28,7 +28,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       formData,
       {
         headers: formData.getHeaders(),
-        timeout: 30000,
+        timeout: 60000,
       }
     );
 
@@ -52,13 +52,12 @@ router.post("/", upload.single("image"), async (req, res) => {
 
     return res.json({ disease, confidence, treatment }); // ✅ single response
 
-  } catch (error) {
-    console.error("🔥 ERROR:", error.message);
-    return res.status(500).json({
-      error: "Prediction failed",
-      details: error.message,
-    });
-  }
+  }  catch (err) {
+  console.error("ML Service Error:", err.message);
+  return res.status(503).json({
+    error: "ML service timeout or unavailable"
+  });
+}
 });
 
 export default router;
