@@ -15,12 +15,16 @@ export async function getTreatment(disease, language) {
         content: `
 Crop disease: ${disease}
 Language: ${language}
-what is the disease name.
+Explain in simple farmer-friendly words:
+1. Cause
+2. Symptoms
+3. Treatment
+4. Prevention
 `
       }
     ],
     temperature: 0.6,
-    max_tokens: 2000
+    max_tokens: 3000
   });
 
   return completion.choices[0].message.content;
